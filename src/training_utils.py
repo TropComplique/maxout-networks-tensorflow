@@ -4,21 +4,6 @@ import os
 import time
 
 
-# it decides if training must stop
-def _is_early_stopping(losses, patience, index_to_watch):
-    test_losses = [x[index_to_watch] for x in losses]
-    if len(losses) > (patience + 4):
-        # running average
-        average = (test_losses[-(patience + 4)] +
-                   test_losses[-(patience + 3)] +
-                   test_losses[-(patience + 2)] +
-                   test_losses[-(patience + 1)] +
-                   test_losses[-patience])/5.0
-        return test_losses[-1] > average
-    else:
-        return False
-
-
 def train(run, graph, ops, X_train, Y_train, X_val, Y_val, batch_size,
           num_epochs, steps_per_epoch, validation_steps, patience=5,
           warm=False, initial_epoch=1, verbose=True):
@@ -46,14 +31,15 @@ def train(run, graph, ops, X_train, Y_train, X_val, Y_val, batch_size,
             test logloss isn't improving.
         warm: Boolean, if `True` then resume training from the previously
             saved model.
-        initial_epoch: epoch at which to start training
-            (useful for resuming a previous training run)
+        initial_epoch: An integer, epoch at which to start training
+            (useful for resuming a previous training run).
         verbose: Boolean, whether to print train and test logloss/accuracy
             during fitting.
 
     Returns:
         losses: A list of tuples containing train and test logloss/accuracy.
         is_early_stopped: Boolean, if `True` then fitting is stopped early.
+
     """
 
     # create folders for logging and saving
@@ -71,8 +57,7 @@ def train(run, graph, ops, X_train, Y_train, X_val, Y_val, batch_size,
 
     # get graph's ops
     data_init_op, predictions_op, log_loss_op, optimize_op,\
-        grad_summaries_op, init_op, saver_op, assign_weights_op,\
-        accuracy_op, summaries_op = ops
+        grad_summaries_op, init_op, saver_op, accuracy_op, summaries_op = ops
 
     if warm:
         saver_op.restore(sess, dir_to_save + '/model')
@@ -141,7 +126,7 @@ def train(run, graph, ops, X_train, Y_train, X_val, Y_val, batch_size,
         train_accuracy = running_accuracy/steps_per_epoch
 
         if verbose:
-            print('{0}  {1:.3f} {2:.3f} {3:.3f} {4:.3f}  {5:.3f}'.format(
+            print('  {0}      {1:.3f} {2:.3f}   {3:.3f} {4:.3f}   {5:.3f}'.format(
                 epoch, train_loss, test_loss,
                 train_accuracy, test_accuracy, time.time() - start_time
             ))
@@ -193,6 +178,7 @@ def predict_proba(graph, ops, run, X):
     Returns:
         predictions: A numpy array of shape [n_samples, n_classes]
             and of type 'float32'.
+
     """
     sess = tf.Session(graph=graph)
 
@@ -208,3 +194,18 @@ def predict_proba(graph, ops, run, X):
     sess.close()
 
     return predictions
+
+
+# it decides if training must stop
+def _is_early_stopping(losses, patience, index_to_watch):
+    test_losses = [x[index_to_watch] for x in losses]
+    if len(losses) > (patience + 4):
+        # running average
+        average = (test_losses[-(patience + 4)] +
+                   test_losses[-(patience + 3)] +
+                   test_losses[-(patience + 2)] +
+                   test_losses[-(patience + 1)] +
+                   test_losses[-patience])/5.0
+        return test_losses[-1] > average
+    else:
+        return False

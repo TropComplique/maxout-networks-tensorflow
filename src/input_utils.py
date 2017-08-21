@@ -39,7 +39,7 @@ def _get_batch(num_classes, input_dim, batch_size):
     Y_train = tf.Variable(
         tf.placeholder(tf.float32, [None, num_classes], 'Y_train'),
         trainable=False, collections=[],
-        validate_shape=False, expected_shape=[None, output_dim]
+        validate_shape=False, expected_shape=[None, num_classes]
     )
 
     # three values that you need to tweak
@@ -68,7 +68,7 @@ def _get_val_batch(num_classes, input_dim, batch_size):
     Y_val = tf.Variable(
         tf.placeholder(tf.float32, [None, num_classes], 'Y_val'),
         trainable=False, collections=[],
-        validate_shape=False, expected_shape=[None, output_dim]
+        validate_shape=False, expected_shape=[None, num_classes]
     )
 
     num_threads = 1

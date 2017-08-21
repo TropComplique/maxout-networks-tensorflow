@@ -59,7 +59,7 @@ def _maxout_layer(X, size, k):
     )
 
     result = tf.add(tf.tensordot(X, W, [[1], [0]]), b)
-    result = tf.reduce_max(result, axis=1)
+    result = tf.reduce_max(result, axis=1, name='maxout')
     return result
 
 

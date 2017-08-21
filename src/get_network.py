@@ -3,17 +3,25 @@ from input_utils import _get_data
 from parts_of_the_net import _mapping, _add_weight_decay
 
 
-def get_maxout_network(architecture, dropout, optimizer,
-                       weight_decay=None, image_size=224, num_classes=1000):
-    """Create a Maxout network computational graph.
+def get_maxout_network(architecture, dropout, optimizer, weight_decay=None):
+    """Create a maxout network computational graph.
 
     Arguments:
-        architecture: A list that contains number of hidden units for each layer.
-        dropout: A list that contains dropout for each layer.
+        architecture: A list that contains number of hidden units for each layer,
+            where architecture[0] equals to the number of input features,
+            architecture[-1] equals to the number of classes,
+            architecture[i] has form (n_hidden_units, k),
+            k - number of affine feature maps.
+        dropout: A list that contains dropout rate for each layer.
+            It is required that len(dropout) == len(architecture) - 1.
         optimizer: A Tensorflow optimizer.
         weight_decay: A scalar or None.
-        image_size: An integer, input image size.
-        num_classes: An integer.
+
+    For example:
+        architecture=[54, (80, 3), (80, 3), (80, 3), 7],
+        dropout=[0.2, 0.5, 0.5, 0.1]
+
+    See arxiv.org/abs/1302.4389 for a description of maxout networks.
 
     """
 
@@ -36,7 +44,7 @@ def get_maxout_network(architecture, dropout, optimizer,
         logits = _mapping(X, architecture, dropout, is_training)
 
         with tf.variable_scope('softmax'):
-            predictions = tf.nn.softmax(logits, name='predictions')
+            predictions = tf.nn.softmax(logits)
 
         with tf.variable_scope('log_loss'):
             log_loss = tf.losses.softmax_cross_entropy(Y, logits)
