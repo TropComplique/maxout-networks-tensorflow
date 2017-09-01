@@ -74,11 +74,15 @@ def _get_val_batch(num_classes, input_dim, batch_size):
     num_threads = 1
     capacity = 10000
 
+    # it cycles through the validation dataset
+    # but i don't understand why it works
     x_batch, y_batch = tf.train.batch(
         [X_val, Y_val], batch_size,
         num_threads, capacity,
         enqueue_many=True,
         shapes=[[input_dim], [num_classes]]
     )
+    # set validation_steps=len(X_val)/batch_size
+    # so that at each evaluation we are using the whole validation dataset
 
     return X_val, Y_val, x_batch, y_batch

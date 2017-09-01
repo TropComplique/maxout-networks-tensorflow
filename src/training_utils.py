@@ -184,8 +184,7 @@ def predict_proba(graph, ops, run, X):
 
     # get graph's ops
     data_init_op, predictions_op, log_loss_op, optimize_op,\
-        grad_summaries_op, init_op, saver_op, assign_weights_op,\
-        accuracy_op, summaries_op = ops
+        grad_summaries_op, init_op, saver_op, accuracy_op, summaries_op = ops
     # only predictions_op and saver_op are used here
 
     saver_op.restore(sess, 'saved/run' + str(run) + '/model')
